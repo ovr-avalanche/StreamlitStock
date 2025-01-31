@@ -10,11 +10,12 @@ def render_multistock_title(multistock: list[str]):
     if len(multistock)==0:
         st.title("No Stocks Selected")
         return
-    stockstring: str = ""
+    
+    title_string: str = ""
     for string in multistock:
-        stockstring += string + ", "
-    stockstring = stockstring[:-2] + " "
-    st.title(stockstring + "Stocks")
+        title_string += string + ", "
+    title_string = title_string[:-2] + " "
+    st.title(title_string + "Stocks")
 
 def get_stocklist(keys = False, values = False):
     file_path = "stocks.json"
@@ -30,53 +31,65 @@ def get_stocklist(keys = False, values = False):
     if keys == True:
         return data.keys()
 
+def get_abreviation(stock_name: str):
+    file_path = "stocks.json"
+    try:
+        with open(file_path, "r") as file:
+            data = json.load(file)    
 
-#def plot_stocks(bPlotInOne):
-#    Stocklist = get_stocklist(keys = False, values = True)
-#    fig, ax = plt.subplots()
-#    open_closed = st.sidebar.selectbox("Select a column", ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'])
-#    start_date = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d')
-#    end_date = datetime.today().strftime('%Y-%m-%d')
-#    
-#    for stock in Stocklist:
-#        stockticker = yf.Ticker(stock)
-#
-#        stockdata = stockticker.history(period="1d", start=start_date, end=end_date)  
-#
-#        ax.plot(stockdata[open_closed], label = stock)
-#
-#        ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-#        if(bPlotInOne == False):
-#            st.pyplot(fig)
-#           
-#    st.pyplot(fig) # rework such tthat each stock is plotted allone
-#    st.caption(start_date + " to " + end_date)
+    except FileNotFoundError:
+        print("File not found")
+        return
+    return data[stock_name]
 
-def render_plotly(bPlotSeperate: bool):
-    Stocklist = get_stocklist(keys = False, values = True)
+
+def render_plotly(bPlotSeperate: bool, multistock: list[str]):
     fig, ax = plt.subplots()
     open_closed = st.sidebar.selectbox("Select a column", ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'])
     start_date = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d')
     end_date = datetime.today().strftime('%Y-%m-%d')
+    #end_date = yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d') # get yesterdays date
     st.caption(start_date + " to " + end_date)
 
     if bPlotSeperate == False:
-        fig = px.line(title="Stocks")
-        for stock in Stocklist:
+        fig = px.line()
+        for stock in multistock:
+            stock = get_abreviation(stock)
             stockticker = yf.Ticker(stock)
-
             stockdata = stockticker.history(period="1d", start=start_date, end=end_date)
             fig.add_scatter(x=stockdata.index, y=stockdata[open_closed], name=stock)
         st.plotly_chart(fig)
-    else:            
-        for stock in Stocklist:
+    else:
+        col1, col2 = st.columns(2)
+        stock_counter = 1            
+        for stock in multistock:
+            stock_counter += 1
+            stock = get_abreviation(stock)
             stockticker = yf.Ticker(stock)
 
             stockdata = stockticker.history(period="1d", start=start_date, end=end_date)
             fig = px.line(stockdata, x=stockdata.index, y=open_closed, title=stock)
-            st.plotly_chart(fig)
+            if len(multistock) < 2:
+                st.plotly_chart(fig)
+                return
+            if stock_counter % 2 == 0:
+                col1.plotly_chart(fig)
+            else:
+                col2.plotly_chart(fig)
     
+    
+def store_selected_stocks():
+    """ stores a list in the selected.txt file, elements should be full names of stocks """
+    with open("selected.txt", "w") as file:
+        file.writelines("\n".join(st.session_state["multistock"]))
 
+        
+def get_selected_stocks():
+    """ returns a list from the selected.txt file """
+
+    with open("selected.txt", "r") as file:
+        my_list = file.read().splitlines()
+    return my_list
 
 def add_stocks_to_json(new_stock: str, abreviation: str, buttonval: bool):
     if buttonval == False:
