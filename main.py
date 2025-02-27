@@ -20,7 +20,7 @@ multistock = st.sidebar.multiselect("muliselect ", stocklist, key = "multistock"
 
 #----- Render Title -----
 ff.render_multistock_title(multistock)
-bPlotSeperate = st.sidebar.checkbox("Plot each stock seperately")
+bPlotSeperate = st.sidebar.checkbox("Plot each stock separately")
 
 #----- Date Input -----
 date_input = st.sidebar.date_input("Start Date", value = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d'))
