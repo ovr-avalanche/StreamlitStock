@@ -5,6 +5,7 @@ import pandas as pd
 import yfinance as yf
 import matplotlib.pyplot as plt
 import ff
+from datetime import datetime, timedelta
 
 
 stocklist = ff.get_stocklist(keys= True)
@@ -21,8 +22,13 @@ multistock = st.sidebar.multiselect("muliselect ", stocklist, key = "multistock"
 ff.render_multistock_title(multistock)
 bPlotSeperate = st.sidebar.checkbox("Plot each stock seperately")
 
+#----- Date Input -----
+date_input = st.sidebar.date_input("Start Date", value = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d'))
+formated_date = date_input.strftime('%Y-%m-%d')
+
+
 #----- Plot Stocks -----
-ff.render_plotly(bPlotSeperate, multistock)
+ff.render_plotly(bPlotSeperate, multistock, formated_date)
 
 
 # ====== Add Stocks to json files ======  not sure i like the nested widgets

@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 import json
 import plotly.express as px
 
-
 def render_multistock_title(multistock: list[str]):
     if len(multistock)==0:
         st.title("No Stocks Selected")
@@ -43,12 +42,10 @@ def get_abreviation(stock_name: str):
     return data[stock_name]
 
 
-def render_plotly(bPlotSeperate: bool, multistock: list[str]):
+def render_plotly(bPlotSeperate: bool, multistock: list[str], start_date = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d')):
     fig, ax = plt.subplots()
     open_closed = st.sidebar.selectbox("Select a column", ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'])
-    start_date = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d')
     end_date = datetime.today().strftime('%Y-%m-%d')
-    #end_date = yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d') # get yesterdays date
     st.caption(start_date + " to " + end_date)
 
     if bPlotSeperate == False:
