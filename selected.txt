@@ -1,2 +1,2 @@
-AMD
 Intel
+BYD

@@ -15,7 +15,7 @@ def test():
 
 #----- Select Stocks -----
 st.session_state["multistock"] = ff.get_selected_stocks()
-multistock = st.sidebar.multiselect(" ", stocklist, key = "multistock", on_change=ff.store_selected_stocks)
+multistock = st.sidebar.multiselect("muliselect ", stocklist, key = "multistock", on_change=ff.store_selected_stocks)
 
 #----- Render Title -----
 ff.render_multistock_title(multistock)
