@@ -48,3 +48,4 @@ stocks_to_remove = st.sidebar.multiselect("select stocks to remove", stocklist, 
 buttonval = st.sidebar.button("Remove selected stocks")
 ff.remove_stocks(stocks_to_remove, buttonval)
 st.sidebar.write(buttonval)
+
