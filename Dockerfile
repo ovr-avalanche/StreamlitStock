@@ -9,12 +9,15 @@ WORKDIR /app
 
 # 3.5. Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
+# 3.6. Streamlit specific optimizations
+ENV STREAMLIT_SERVER_HEADLESS=true
+ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # 4.  Copy Only dependency files ("Cache Layer")
 COPY pyproject.toml uv.lock ./
 
 # 5. instead of pip install -r requirements.txt
-# --frozen             | ignores.tompl and uses only uv.lock
+# --frozen             | ignores.toml and uses only uv.lock
 # --no-install-project | dont look for the src folder yet ?
 # --no-dev             | leave out development dependencies (tools only used in development)
 # 
@@ -35,4 +38,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8501
 
 # 10. Entrypoint 
-ENTRYPOINT [ "streamlit", "run", "src/StreamlitStock.py", "--server.port=8501", "--server.address=0.0.0.0" ]
+ENTRYPOINT [ "streamlit", "run", "src/main.py", "--server.port=8501", "--server.address=0.0.0.0" ]

@@ -16,12 +16,13 @@ def render_multistock_title(multistock: list[str]):
     title_string = title_string[:-2] + " "
     st.title(title_string + "Stocks")
 
-def get_stocklist(keys = False, values = False):
+
+def get_stocklist(keys = False, values = False)-> list[str]:
+    """returns a list of stock names if keys=True, returns abbreviations if values=True"""
     file_path = r"data/stocks.json"
     try:
         with open(file_path, "r") as file:
             data = json.load(file)    
-
     except FileNotFoundError:
         print("File not found")
         return
@@ -43,6 +44,7 @@ def get_abreviation(stock_name: str):
 
 
 def render_plotly(bPlotSeperate: bool, multistock: list[str], start_date = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d')):
+    """-"""
     fig, ax = plt.subplots()
     open_closed = st.sidebar.selectbox("Select a column", ['Open', 'High', 'Low', 'Close', 'Volume', 'Dividends', 'Stock Splits'])
     end_date = datetime.today().strftime('%Y-%m-%d')
@@ -82,8 +84,7 @@ def store_selected_stocks():
 
         
 def get_selected_stocks():
-    """ returns a list from the selected.txt file """
-
+    """ returns a list of Stocknames from the selected.txt file """
     with open(r"data/selected.txt", "r") as file:
         my_list = file.read().splitlines()
     return my_list
