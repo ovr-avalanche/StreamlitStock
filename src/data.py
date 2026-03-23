@@ -75,7 +75,7 @@ def _update_parquet_file(stock_name: str, start_date: str, end_date: str):
     if end_date > existing_end_date:
         df_new_data.append(_download_stock_data(stock_name, existing_end_date, end_date))
     
-    df_new = pd.concat(df_new_data) if df_new_data else pd.DataFrame()
+    df_new = pd.concat([df_existing] + df_new_data) if df_new_data else df_existing
     df_new = df_new[~df_new.index.duplicated(keep="first")]
     df_new = df_new.sort_index()
 
