@@ -2,6 +2,7 @@ import pandas as pd
 import yfinance as yf
 import os
 from datetime import datetime, timedelta
+import json
 
 def get_stock_data(stock_name: str,
     start_date = (datetime.today() - timedelta(days=365)).strftime('%Y-%m-%d'),
@@ -57,8 +58,9 @@ def _parque_has_interval(stock_name: str, start_date: str, end_date: str) -> boo
 
 def _download_stock_data(stock_name: str, start_date: str, end_date: str)-> pd.DataFrame:
     """ downloads the missing data from yfinance and returns a DataFrame """
-    stockticker = yf.Ticker(stock_name)
-    stockdata = stockticker.history(period="1d", start=start_date, end=end_date)
+    name = get_stock_abriviation(stock_name)
+    stockticker = yf.Ticker(name)
+    stockdata = stockticker.history(start=start_date, end=end_date, interval="1d")
     #stockdata.to_parquet(r"data/" + stock_name + ".parquet")
     return stockdata
 
@@ -75,18 +77,39 @@ def _update_parquet_file(stock_name: str, start_date: str, end_date: str):
     if end_date > existing_end_date:
         df_new_data.append(_download_stock_data(stock_name, existing_end_date, end_date))
     
-    df_new = pd.concat([df_existing] + df_new_data) if df_new_data else df_existing
+    df_new = pd.concat([df_existing, *(i for i in df_new_data)]) if df_new_data else df_existing
     df_new = df_new[~df_new.index.duplicated(keep="first")]
     df_new = df_new.sort_index()
 
     df_new.to_parquet(r"data/" + stock_name + ".parquet")
     return df_new
 
+def get_stock_abriviation(stock_name: str) -> str:
+    """ 
+    returns the abreviation for the given stock name
+    1. tries to get it from "data/stocks.json"
+    2. from yfinance
+    """
+
+    json_file = r"data/stocks.json"
+    try: 
+        os.path.exists(json_file)
+    except:
+        print(f"stocks.json not found")
+        return
+
+    with open(json_file, "r") as f:
+        data_dict = json.load(f)
+        if stock_name.capitalize() in data_dict:
+            return data_dict[stock_name.capitalize()]
+        else:
+            return yf.Search(stock_name).quotes[0]["symbol"]
+
+
+
 # -------------- TESTING --------------
 
-
-print(pd.read_parquet(r"data/apple.parquet").head(5))
-
-res = get_stock_data("Apple", "2023-01-02", "2025-01-04")
-
-print(pd.read_parquet(r"data/apple.parquet").head(5))
+if __name__ == "__main__":
+    dd = get_stock_data("Tesla", "2024-01-02", "2025-01-04")
+    print("------------------")
+    print(dd)
